@@ -1,5 +1,10 @@
 const { ProductDto } = require("../dto/product.dto");
 const { productService } = require("../services/Services");
+const { Error } = require("../utils/customError/Errors");
+const { CustomError } = require("../utils/customError/customError");
+const { createProductErrorInfo } = require("../utils/customError/info");
+const { generateProducts } = require("../utils/generateProductsFaker")
+
 
 class ProductController{
 
@@ -31,13 +36,28 @@ class ProductController{
     createProduct = async(req, res)=>{
         try{
             const {title, description, price, code, stock, category, thumbnail} = req.body
+            if(!title || !description || !price || !code || !stock || !category){
+                CustomError.createError({
+                    name: "Product creation error",
+                    cause: createProductErrorInfo({
+                        title, 
+                        description, 
+                        price, 
+                        code, 
+                        stock, 
+                        category
+                    }),
+                    message: "Error trying to create product",
+                    code: Error.INVALID_TYPE_ERROR
+                })
+            }
             let newProduct = new ProductDto({title, description, price, code, stock, category, thumbnail}) 
             let product = await productService.createProduct(newProduct)
             !product
             ? res.status(400).send({ error: "No se pudo crear el producto" })
             : res.status(201).send({status: "Producto creado", payload: product})
-        } catch(err){
-            console.log(err)
+        } catch(error){
+            next(error)
         }
     }
 
@@ -63,6 +83,18 @@ class ProductController{
             : res.status(200).send({ status:`El producto con ID ${id} se ha eliminado`});
         }catch(err){
             console.log(err)
+        }
+    }
+
+    generateProductsMock = async(req,res)=>{
+        try {
+            let products = []
+            for (let i = 0; i < 50 ; i++) {
+                products.push(generateProducts())  
+            }
+            res.send({status: "success", payload: products})
+        } catch (error) {
+            console.log(error)
         }
     }
 }
