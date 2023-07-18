@@ -12,12 +12,13 @@ const { initPassport } = require("./config/passport-jwt-config.js");
 const { productService, chatService } = require("./services/Services.js");
 const configServer = require("./config/configServer.js");
 const { errorHandler } = require("./middlewares/error.middleware.js");
+const { logger, addLogger } = require("./utils/logger.js");
 const ObjectId = mongoose.Types.ObjectId
 const PORT = process.env.PORT;
 const app = express()
 
 const httpServer = app.listen(PORT, () => {
-	console.log(`Escuchando en el puerto ${PORT}`);
+	logger.info(`Escuchando en el puerto ${PORT}`);
 });
 
 const socketServer = new Server(httpServer)
@@ -55,13 +56,13 @@ initPassportGithub()
 passport.use(passport.initialize())
 passport.use(passport.session())
 
-
+app.use(addLogger)
 app.use(routerServer)
 app.use(errorHandler)
 
 //realtimeproducts
 socketServer.on("connection", socket=>{
-	console.log("cliente conectado")
+	logger.info("cliente conectado")
 	
 	socket.on("deleteProduct", async (pid)=>{
 		try{
@@ -77,8 +78,8 @@ socketServer.on("connection", socket=>{
 			  return socket.emit("newList", data)
 			}
 			return socket.emit("newList", {status: "error", message: `El producto con ID ${pid.id} no existe`})
-		}catch(err){
-			console.log(err)
+		}catch(error){
+			logger.error(error)
 		}
 	})
 
@@ -108,7 +109,7 @@ socketServer.on("connection", socket => {
 			const messages = await chatService.getMessages()
 			socketServer.emit("messageLogs", messages)
 		}catch(error){
-			console.log(error)
+			logger.error(error)
 		}
     })
 

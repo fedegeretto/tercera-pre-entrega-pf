@@ -1,6 +1,7 @@
 const { userService, cartService } = require("../services/Services");
 const { createHash, isValidPassword } = require("../utils/bcryptHash");
 const { generateToken } = require("../utils/jwt");
+const { logger } = require("../utils/logger");
 
 class UserController {
 
@@ -43,10 +44,9 @@ class UserController {
                 httpOnly: true
             }).redirect('/')
         
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
-        
     }
 
     register = async(req,res)=>{
@@ -93,8 +93,8 @@ class UserController {
                 message: "register success",
             })
         
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
     

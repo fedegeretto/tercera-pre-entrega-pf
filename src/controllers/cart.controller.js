@@ -1,6 +1,7 @@
 const { cartService, productService } = require("../services/Services")
 const { v4: uuidv4 } = require('uuid');
 const { sendMail } = require("../utils/nodemailer");
+const { logger } = require("../utils/logger");
 
 
 class CartController{
@@ -10,8 +11,8 @@ class CartController{
             const newCart = {products:[]}
             const result = await cartService.createCart(newCart)
             res.status(201).send({ status: "success", payload: result})
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
@@ -19,8 +20,8 @@ class CartController{
         try{
             const carts = await cartService.getCarts()
             res.status(201).send({status: "success", payload: carts});  
-        } catch(err){
-            console.log(err)
+        } catch(error){
+            logger.error(error)
         }
     }
 
@@ -32,8 +33,8 @@ class CartController{
                 res.status(404).send({ message: `El carrito con ID ${cid} no existe` })
             }
             res.status(201).send({status: "success", payload: cart})
-        } catch(err){
-            console.log(err)
+        } catch(error){
+            logger.error(error)
         }
     }
 
@@ -45,8 +46,8 @@ class CartController{
                 return res.status(400).send({message: "No se pudo vaciar el carrito"})
             }
             res.status(200).send({status: "success", payload: respuesta})
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
@@ -59,8 +60,8 @@ class CartController{
                return res.status(400).send({message: "No se pudo eliminar el producto del carrito"})
             }
             res.status(200).send({ status:`El producto ID:${pid} se ha eliminado del carrito`, payload: respuesta});
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
@@ -73,8 +74,8 @@ class CartController{
                 return res.status(400).send({message: "No se pudo modificar el carrito"})
             }
             res.status(200).send({message: "Se ha modificado el carrito", payload: respuesta})
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
@@ -88,8 +89,8 @@ class CartController{
                return res.status(400).send({message: "No se pudo modificar el producto del carrito"})
             }
             res.status(200).send({status:`El producto ID:${pid} se ha modificado`, payload: respuesta});
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
@@ -105,8 +106,8 @@ class CartController{
             }
     
             res.status(201).send({message: "success", payload: addProduct})
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
@@ -159,7 +160,7 @@ class CartController{
                 res.status(200).send({message: "La compra no se pudo completar", payload: productsWithoutStockIds});
             }
         } catch (error) {
-            console.log(error)
+            logger.error(error)
         }
     }
 

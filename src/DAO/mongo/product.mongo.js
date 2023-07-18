@@ -1,3 +1,4 @@
+const { logger } = require("../../utils/logger.js")
 const { ProductModel } = require("./models/product.model.js")
 
 class ProductDaoMongo{
@@ -65,40 +66,40 @@ class ProductDaoMongo{
                     prevLink,
                     nextLink
                 }
-        }catch(err){
-            return new Error(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
     async createProduct(newProduct){
         try{
             return await this.productModel.create(newProduct)
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
     async getProductById(pid){
         try{
             return await this.productModel.findOne({_id: pid})
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
     async deleteProduct(pid){
         try{
             return await this.productModel.deleteOne({_id: pid})
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
     async updateProduct(pid, obj){
         try{
             return await this.productModel.updateOne({_id: pid}, obj)
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 }

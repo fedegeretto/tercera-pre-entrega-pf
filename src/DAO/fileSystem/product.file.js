@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
+const { logger } = require("../../utils/logger");
 const filepath = path.join(__dirname, "../fileSystem/products.json");
+
 
 class ProductDaoFile {
   constructor() {
@@ -15,16 +17,16 @@ class ProductDaoFile {
       } else {
       fs.writeFileSync(this.path, JSON.stringify(this.products), "utf-8")
       }
-    } catch (err) {
-      console.log(err) 
+    } catch (error) {
+      logger.error(error) 
     } 
   };
 
   async getProducts() {
     try {
       return this.products;
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      logger.error(error)
     }
   };
 
@@ -54,16 +56,16 @@ class ProductDaoFile {
         return this.products
       }
 
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      logger.error(error)
     }
   };
 
   async getProductById(id){
     try{
       return await this.products.find((product) => product.id === parseInt(id));
-    } catch (err){
-      console.log(err)
+    } catch (error){
+      logger.error(error)
     }
   };
 
@@ -76,8 +78,8 @@ class ProductDaoFile {
       } 
       await fs.promises.writeFile(this.path,JSON.stringify(productsFilter, "utf-8", "\t"));
       return productsFilter
-    } catch (err){
-      console.log(err)
+    } catch (error){
+        logger.error(error)
     }
   };
 
@@ -99,8 +101,8 @@ class ProductDaoFile {
 
       await fs.promises.writeFile(this.path, JSON.stringify(newProducts, "utf-8", "\t"));
       return newProducts;
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      logger.error(error)
     }
   };
 };

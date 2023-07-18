@@ -1,4 +1,6 @@
 const { productService, cartService } = require("../services/Services")
+const { logger } = require("../utils/logger")
+
 
 class ViewsController{
 
@@ -50,8 +52,8 @@ class ViewsController{
                 nextLink
             })
     
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
@@ -65,8 +67,8 @@ class ViewsController{
                 products: carts,
                 user
             })
-        }catch(err){
-            console.log(err)
+        }catch(error){
+            logger.error(error)
         }
     }
 
@@ -82,8 +84,8 @@ class ViewsController{
                     products
                 })
             }
-        } catch(err){
-            console.log(err)
+        } catch(error){
+            logger.error(error)
         }
     
     }
