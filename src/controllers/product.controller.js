@@ -34,7 +34,7 @@ class ProductController{
         }
     }
 
-    createProduct = async(req, res)=>{
+    createProduct = async(req, res, next)=>{
         try{
             const {title, description, price, code, stock, category, thumbnail} = req.body
             if(!title || !description || !price || !code || !stock || !category){
