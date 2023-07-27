@@ -1,3 +1,4 @@
+const { logger } = require("../../utils/logger");
 const { UserModel } = require("./models/user.model");
 
 class UserManagerMongo{
@@ -20,6 +21,15 @@ class UserManagerMongo{
             return new Error(err)
         }
     }
+
+    async getUserById(uid){
+        try {
+            return await this.userModel.findOne({_id: uid})
+        } catch (error) {
+            logger.error(error)
+        }
+    }
+
 }
 
 module.exports= UserManagerMongo

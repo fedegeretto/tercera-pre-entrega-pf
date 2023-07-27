@@ -7,4 +7,4 @@ function showPass() {
     } else {
       passwordField.type = "password";
     }
-  }
+}

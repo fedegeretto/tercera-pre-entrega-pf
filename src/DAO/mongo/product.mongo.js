@@ -19,53 +19,53 @@ class ProductDaoMongo{
             let sortOptions
     
             if (sort === "asc") {
-                sortOptions = { price: 1 }
+                sortOptions = { price: 1 };
             } else if (sort === "desc") {
-                sortOptions = { price: -1 }
+                sortOptions = { price: -1 };
             }
                 const options = {
-                    limit: parseInt(limit),
-                    page: parseInt(page),
-                    sort: sortOptions,
-                    leanWithId: false,
-                    lean: true
-                }
+                  limit: parseInt(limit),
+                  page: parseInt(page),
+                  sort: sortOptions,
+                  leanWithId: false,
+                  lean: true
+                };
             
-                const result = await this.productModel.paginate({}, options)
+                const result = await this.productModel.paginate({}, options);
             
                 const {
-                    docs,
-                    totalPages,
-                    prevPage,
-                    nextPage,
-                    hasPrevPage,
-                    hasNextPage
-                } = result
+                  docs,
+                  totalPages,
+                  prevPage,
+                  nextPage,
+                  hasPrevPage,
+                  hasNextPage
+                } = result;
             
-                let prevLink, nextLink
+                let prevLink, nextLink;
             
                 if (hasPrevPage) {
-                  prevLink = `/api/products?page=${prevPage}&limit=${limit}&sort=${sort}`
+                  prevLink = `/api/products?page=${prevPage}&limit=${limit}&sort=${sort}`;
                 } else {
-                  prevLink = null
+                  prevLink = null;
                 }
             
                 if (hasNextPage) {
-                  nextLink = `/api/products?page=${nextPage}&limit=${limit}&sort=${sort}`
+                  nextLink = `/api/products?page=${nextPage}&limit=${limit}&sort=${sort}`;
                 } else {
-                  nextLink = null
+                  nextLink = null;
                 }
             
                 return {
-                    docs,
-                    totalPages,
-                    prevPage,
-                    nextPage,
-                    hasPrevPage,
-                    hasNextPage,
-                    prevLink,
-                    nextLink
-                }
+                  docs,
+                  totalPages,
+                  prevPage,
+                  nextPage,
+                  hasPrevPage,
+                  hasNextPage,
+                  prevLink,
+                  nextLink
+                };
         }catch(error){
             logger.error(error)
         }
@@ -75,13 +75,13 @@ class ProductDaoMongo{
         try{
             return await this.productModel.create(newProduct)
         }catch(error){
-            logger.error(error)
+            logger.error(error);
         }
     }
 
     async getProductById(pid){
         try{
-            return await this.productModel.findOne({_id: pid})
+            return await this.productModel.findOne({_id: pid});
         }catch(error){
             logger.error(error)
         }
@@ -89,7 +89,7 @@ class ProductDaoMongo{
 
     async deleteProduct(pid){
         try{
-            return await this.productModel.deleteOne({_id: pid})
+            return await this.productModel.deleteOne({_id: pid});
         }catch(error){
             logger.error(error)
         }
@@ -97,11 +97,11 @@ class ProductDaoMongo{
 
     async updateProduct(pid, obj){
         try{
-            return await this.productModel.updateOne({_id: pid}, obj)
+            return await this.productModel.updateOne({_id: pid}, obj);
         }catch(error){
             logger.error(error)
         }
     }
 }
 
-module.exports = ProductDaoMongo;
+module.exports = ProductDaoMongo ;

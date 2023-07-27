@@ -6,7 +6,7 @@ const router = Router()
 
 router.get("/", viewsController.getProducts)
 
-router.get("/realTimeProducts",passportCall("current", {session: false}),authorization("admin"), viewsController.getRealTimeProducts)
+router.get("/realTimeProducts",passportCall("current", {session: false}),authorization(["admin", "premium"]), viewsController.getRealTimeProducts)
 
 router.get("/carts/:cid", viewsController.getCartById)
 
@@ -21,5 +21,11 @@ router.get("/api/session/login", (req,res)=>{
 router.get("/api/session/register", (req,res)=>{
     res.render("registerForm", {})
 })
+
+router.get('/api/session/forgotPassword', (req,res)=>{
+    res.render('forgotPassword',{})
+})
+
+router.get('/api/session/resetPassword', viewsController.resetPasswordpage)
 
 module.exports = router

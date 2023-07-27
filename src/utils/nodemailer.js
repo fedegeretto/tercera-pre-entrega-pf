@@ -14,11 +14,26 @@ exports.sendMail = async (body)=>{
     return await transport.sendMail({
         from: "COMPRA REALIZADA<fede.geretto96@gmail.com>",
         to: "fede.geretto96@gmail.com", //${body.purchaser}
-        subject: "Gracias por realizar la compra",
+        subject:'Gracias por realizar la compra',
         html:`<div>
         <h1>Tu compra ha sido completada con exito</h1>
         <p>Codigo: ${body.code} </p>
         <p>Total: ${body.amount}$ </p>
+        </div>`
+    })
+}
+
+exports.sendResetPassMail = async (user,resetLink)=>{
+    return await transport.sendMail({
+        from: "RESET PASSWORD<fede.geretto96@gmail.com>",
+        to: user.email,
+        subject: "reset password",
+        html:`<div>
+        <h1>Hola ${user.first_name},</h1>
+        <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.</p>
+        <p>Para continuar con el proceso, haz clic en el siguiente enlace:</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>El enlace expirará después de 1 hora.</p>
         </div>`
     })
 }

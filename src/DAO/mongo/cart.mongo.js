@@ -55,7 +55,7 @@ class CartDaoMongo{
     async deleteProductFromCart(cid, pid){
         try{
             return await this.cartModel.findOneAndUpdate(
-                {_id:cid},
+                {_id:cid,"products.product": pid},
                 {$pull: {products:{product:pid}}},
                 {new:true}
             )
@@ -109,4 +109,4 @@ class CartDaoMongo{
     }
 }
 
-module.exports = CartDaoMongo;
+module.exports = CartDaoMongo ;

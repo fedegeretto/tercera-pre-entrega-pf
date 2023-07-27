@@ -1,23 +1,23 @@
 const { userService, cartService } = require("../services/Services");
 const { createHash, isValidPassword } = require("../utils/bcryptHash");
-const { generateToken } = require("../utils/jwt");
+const { generateToken, generateResetToken, verifyResetToken } = require("../utils/jwt");
 const { logger } = require("../utils/logger");
+const { sendResetPassMail } = require("../utils/nodemailer");
+
 
 class UserController {
 
     login = async (req, res) =>{
         try{
             let {email, password} = req.body
-            email = email.trim();
-            password = password.trim();
             if (!email || !password) {
                 return res.status(400).send({ status: "error", message: "El email y la contraseña son obligatorios" });
             }
         
             const userDB = await userService.getUser({email})
-            if(!userDB) return res.status(404).send({status: "error", message: "Usuario incorrecto"})
+            if(!userDB) return res.status(404).send({status: "error", message: "usuario incorrecto"})
         
-            if(!isValidPassword(password, userDB)) return res.status(401).send({status: "error", message: "Contraseña incorrecta"})
+            if(!isValidPassword(password, userDB)) return res.status(401).send({status:"error", message:"contraseña incorrecta"})
         
             req.session.user ={
                 first_name: userDB.first_name,
@@ -47,6 +47,7 @@ class UserController {
         }catch(error){
             logger.error(error)
         }
+        
     }
 
     register = async(req,res)=>{
@@ -59,8 +60,8 @@ class UserController {
             const cart= await cartService.createCart(newCart)
 
             let role = "user"
-            if(email === "adminCoder@coder.com"){
-                role = "admin"
+            if(email === 'premium@premium.com'){
+                role = "premium"
             }
         
             const newUser={
@@ -104,6 +105,65 @@ class UserController {
             res.clearCookie("coderCookieToken");
             res.redirect("login")
         })
+    }
+
+    forgotpassword = async (req, res) => {
+        try {
+            let {email} = req.body
+            if (!email) return res.status(400).send({ status: "error", message: "El email es obligatorio" });
+            
+            const userDB = await userService.getUser({email})
+            if(!userDB) return res.status(404).send({status: "error", message: "Usuario inexistente"})
+
+            const resetToken = generateResetToken({userDB})
+            const resetLink = `${req.protocol}://${req.get('host')}/api/session/resetPassword?token=${resetToken}`
+            
+            await sendResetPassMail(userDB, resetLink)
+            res.send({status:"success", message: "se ha enviado el link para resetear tu pass"})
+        } catch (error) {
+            logger.error(error)
+        }
+    }
+    
+    resetPassword = async(req, res) => {
+        try {
+            const { password } = req.body
+            const { token } = req.query
+            const verifiedToken = verifyResetToken(token)
+            if(!verifiedToken){
+                return res.status(400).send({status:"error", message:"El enlace de recuperación de contraseña es inválido o ha expirado"})
+            }
+
+            const userDB = await userService.getUser({email: verifiedToken.userDB.email})
+            if(!userDB) return res.status(404).send({status: "errors", message: "Usuario inexistente"})
+            
+            if (isValidPassword(password, userDB)) {
+                return res.status(400).send({ status:"error", message:"La contraseña debe ser distinta a la anterior"})
+            }
+
+            userDB.password = createHash(password);
+            await userDB.save();
+
+            res.send({ status:"success", message:"La contraseña ha sido reemplazada con exito, vuelve a iniciar sesion"});
+        } catch (error) {
+            logger.error(error)
+        }
+    }
+
+    changeRole =  async(req, res) => {
+        try {
+            const userId = req.params.uid
+            const userDB = await userService.getUserById(userId)
+            if (!userDB) return res.status(404).send({ status: "error", message: "Usuario inexistente" })
+
+            const newRole = userDB.role === "user" ? "premium" : "user";
+            userDB.role = newRole
+            await userDB.save()
+    
+            res.send({ status: "success", message: "Rol de usuario actualizado exitosamente", role: newRole })
+        } catch (error) {
+            logger.error(error)
+        }
     }
 }
 

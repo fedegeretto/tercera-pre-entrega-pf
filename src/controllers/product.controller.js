@@ -16,8 +16,10 @@ class ProductController{
             const { sort } = req.query;
             
             const products = await productService.getProducts(limit, page, sort)
-            res.status(201).send({status: "success", payload: products})
-        } catch (error) {
+            !products
+            ?res.status(404).send({error:"no hay productos"})
+            :res.status(201).send({status: "success", payload: products})
+        }catch(error){
             logger.error(error)
         }
     }
@@ -29,7 +31,7 @@ class ProductController{
             !product
             ?res.status(404).send({ error: "No existe el producto" })
             :res.send(product); 
-        } catch(error){
+        }catch(error){
             logger.error(error)
         }
     }
@@ -37,6 +39,8 @@ class ProductController{
     createProduct = async(req, res, next)=>{
         try{
             const {title, description, price, code, stock, category, thumbnail} = req.body
+            const user = req.session.user
+
             if(!title || !description || !price || !code || !stock || !category){
                 CustomError.createError({
                     name: "Product creation error",
@@ -52,12 +56,18 @@ class ProductController{
                     code: Error.INVALID_TYPE_ERROR
                 })
             }
-            let newProduct = new ProductDto({title, description, price, code, stock, category, thumbnail}) 
+
+            let owner = "admin"
+            if(user && user.role === "premium"){
+                owner = user.email
+            }
+
+            let newProduct = new ProductDto({title, description, price, code, stock, category, thumbnail, owner}) 
             let product = await productService.createProduct(newProduct)
             !product
             ? res.status(400).send({ error: "No se pudo crear el producto" })
-            : res.status(201).send({status: "Producto creado", payload: product})
-        } catch(error){
+            : res.status(201).send({status:"success", payload: product})
+        }catch(error){
             next(error)
         }
     }
@@ -77,11 +87,19 @@ class ProductController{
 
     deleteProduct = async(req, res)=>{
         try{
-            const id = req.params.pid;
-            const deletedProduct = await productService.deleteProduct(id)
-            !deletedProduct
-            ? res.status(404).send({error: `El producto con ID ${id} no existe`})
-            : res.status(200).send({ status:`El producto con ID ${id} se ha eliminado`});
+            const id = req.params.pid
+            const user = req.session.user
+
+            const product = await productService.getProductById(id)
+            if (!product) return res.status(404).send({ error: `El producto con ID ${id} no existe` })
+            
+            if(user && (user.role === 'admin' || (user.role === "premium" && product.owner === user.email))){
+                const deletedProduct = await productService.deleteProduct(id)
+                if (deletedProduct) {
+                    return res.status(200).send({ status: `El producto con ID ${id} se ha eliminado` });
+                }
+            }
+            return res.status(403).send({ error: "No tienes permiso para eliminar este producto" })
         }catch(error){
             logger.error(error)
         }
@@ -94,7 +112,7 @@ class ProductController{
                 products.push(generateProducts())  
             }
             res.send({status: "success", payload: products})
-        } catch (error) {
+        }catch(error){
             logger.error(error)
         }
     }
