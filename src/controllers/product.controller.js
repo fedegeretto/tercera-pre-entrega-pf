@@ -17,8 +17,8 @@ class ProductController{
             
             const products = await productService.getProducts(limit, page, sort)
             !products
-            ?res.status(404).send({error:"no hay productos"})
-            :res.status(201).send({status: "success", payload: products})
+            ?res.status(500).send({error:"no hay productos para mostrar"})
+            :res.status(200).send({status: "success", payload: products})
         }catch(error){
             logger.error(error)
         }
@@ -30,7 +30,7 @@ class ProductController{
             const product = await productService.getProductById(id);
             !product
             ?res.status(404).send({ error: "No existe el producto" })
-            :res.send(product); 
+            :res.status(200).send(product); 
         }catch(error){
             logger.error(error)
         }
@@ -93,13 +93,13 @@ class ProductController{
             const product = await productService.getProductById(id)
             if (!product) return res.status(404).send({ error: `El producto con ID ${id} no existe` })
             
-            if(user && (user.role === 'admin' || (user.role === "premium" && product.owner === user.email))){
+            if(user && (user.role === "admin" || (user.role === "premium" && product.owner === user.email))){
                 const deletedProduct = await productService.deleteProduct(id)
                 if (deletedProduct) {
                     return res.status(200).send({ status: `El producto con ID ${id} se ha eliminado` });
                 }
             }
-            return res.status(403).send({ error: "No tienes permiso para eliminar este producto" })
+            return res.status(401).send({ error: "No tienes permiso para eliminar este producto" })
         }catch(error){
             logger.error(error)
         }
@@ -111,7 +111,7 @@ class ProductController{
             for (let i = 0; i < 50 ; i++) {
                 products.push(generateProducts())  
             }
-            res.send({status: "success", payload: products})
+            res.status(200).send({status: "success", payload: products})
         }catch(error){
             logger.error(error)
         }

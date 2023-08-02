@@ -1,7 +1,7 @@
 const {Router} = require("express")
-const productController = require("../controllers/product.controller");
-const { passportCall } = require("../config/passportCall");
-const { authorization } = require("../config/authorizationjwtRole");
+const productController = require("../controllers/product.controller.js");
+const { passportCall } = require("../config/passportCall.js");
+const { authorization } = require("../config/authorizationjwtRole.js");
 const router = Router()
 
 router.get("/mockingproducts", productController.generateProductsMock)
@@ -12,9 +12,9 @@ router.post("/" ,passportCall("current", {session: false}), authorization(["admi
 
 router.get("/:pid", productController.getProductById);
 
-router.put("/:pid",passportCall("current", {session: false}), authorization("admin"), productController.updateProduct);
+router.put("/:pid",passportCall('current', {session: false}), authorization(["admin", "premium"]), productController.updateProduct);
 
-router.delete("/:pid",passportCall('current', {session: false}), authorization(["admin", "premium"]), productController.deleteProduct);
+router.delete("/:pid",passportCall("current", {session: false}), authorization(["admin", "premium"]), productController.deleteProduct);
 
 
 module.exports= router;
