@@ -25,7 +25,7 @@ router.get("/githubcallback",passport.authenticate("github",{failureRedirect:"/a
 })
 
 router.get("/current", passportCall("current", {session: false}),(req,res)=>{
-    res.send(req.user)
+    res.status(200).send({status: "success", payload: req.user})
 })
 
 module.exports= router

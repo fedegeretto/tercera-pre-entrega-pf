@@ -11,13 +11,13 @@ class UserController {
         try{
             let {email, password} = req.body
             if (!email || !password) {
-                return res.status(400).send({ status: "error", message: "El email y la contraseña son obligatorios" });
+                return res.status(400).send({ status: "error", error: "El email y la contraseña son obligatorios" });
             }
         
             const userDB = await userService.getUser({email})
-            if(!userDB) return res.status(404).send({status: "error", message: "usuario incorrecto"})
+            if(!userDB) return res.status(404).send({status: "error", error: "usuario incorrecto"})
         
-            if(!isValidPassword(password, userDB)) return res.status(401).send({status:"error", message:"contraseña incorrecta"})
+            if(!isValidPassword(password, userDB)) return res.status(401).send({status:"error", error:"contraseña incorrecta"})
         
             req.session.user ={
                 first_name: userDB.first_name,
@@ -39,10 +39,10 @@ class UserController {
                 role: userDB.role
             })
         
-            res.cookie("coderCookieToken", accessToken, {
+            res.status(302).cookie("coderCookieToken", accessToken, {
                 maxAge: 60*60*10000,
                 httpOnly: true
-            }).redirect('/')
+            }).redirect("/")
         
         }catch(error){
             logger.error(error)
@@ -54,13 +54,13 @@ class UserController {
         try{
             const{username, first_name, last_name, email, date_of_birth, password} = req.body
             const existUser= await userService.getUser({email})
-            if(existUser) return res.send({status: "error", message:"el email ya existe"})
+            if(existUser) return res.status(400).send({status: "error", error:"el email ya existe"})
 
             const newCart = {products:[]}
             const cart= await cartService.createCart(newCart)
 
             let role = "user"
-            if(email === 'premium@premium.com'){
+            if(email === "premium@premium.com"){
                 role = "premium"
             }
         
@@ -74,25 +74,8 @@ class UserController {
                 role: role,
                 password : createHash(password)
             }
-            await userService.createUser(newUser)
-
-            const accessToken = generateToken({
-                first_name: newUser.first_name,
-                last_name: newUser.last_name,
-                email: newUser.email,
-                date_of_birth: newUser.date_of_birth,
-                username: newUser.username,
-                cart: newUser.cart,
-                role: newUser.role
-            })
-        
-            res.cookie("coderCookieToken", accessToken, {
-                maxAge: 60*60*100,
-                httpOnly: true
-            }).send({
-                status: "success",
-                message: "register success",
-            })
+            const userDB = await userService.createUser(newUser)
+            res.status(201).send({status:"success", payload: userDB})
         
         }catch(error){
             logger.error(error)
@@ -102,7 +85,7 @@ class UserController {
     logout= (req,res)=>{
         req.session.destroy(err=>{
             if(err){res.send({status: "error", error: err})}
-            res.clearCookie("coderCookieToken");
+            res.clearCookie("coderCookieToken")
             res.redirect("login")
         })
     }
@@ -135,7 +118,7 @@ class UserController {
             }
 
             const userDB = await userService.getUser({email: verifiedToken.userDB.email})
-            if(!userDB) return res.status(404).send({status: "errors", message: "Usuario inexistente"})
+            if(!userDB) return res.status(404).send({status: "error", message: "Usuario inexistente"})
             
             if (isValidPassword(password, userDB)) {
                 return res.status(400).send({ status:"error", message:"La contraseña debe ser distinta a la anterior"})
@@ -154,7 +137,7 @@ class UserController {
         try {
             const userId = req.params.uid
             const userDB = await userService.getUserById(userId)
-            if (!userDB) return res.status(404).send({ status: "error", message: "Usuario inexistente" })
+            if (!userDB) return res.status(404).send({ status: "error", error: "Usuario inexistente" })
 
             const newRole = userDB.role === "user" ? "premium" : "user";
             userDB.role = newRole
