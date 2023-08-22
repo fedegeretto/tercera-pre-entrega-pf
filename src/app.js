@@ -12,7 +12,7 @@ const { initPassport } = require("./config/passport-jwt-config.js");
 const { productService, chatService } = require("./services/Services.js");
 const configServer = require("./config/configServer.js");
 const { errorHandler } = require("./middlewares/error.middleware.js");
-const { logger, addLogger } = require("./utils/logger.js");
+const { addLogger, logger } = require("./utils/logger.js");
 const ObjectId = mongoose.Types.ObjectId
 const swaggerJsDoc = require("swagger-jsdoc")
 const swaggerUiExpress = require("swagger-ui-express")
@@ -74,7 +74,8 @@ passport.use(passport.session())
 
 app.use(addLogger)
 app.use(routerServer)
-app.use(errorHandler)
+
+/* app.use(errorHandler) */
 
 //realtimeproducts
 socketServer.on("connection", socket=>{

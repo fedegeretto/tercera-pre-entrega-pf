@@ -15,17 +15,17 @@ router.get("/chat", passportCall("current", {session: false}), authorization("us
 })
 
 router.get("/api/session/login", (req,res)=>{
-    res.render("login", {})
+    res.render("login",{})
 })
 
 router.get("/api/session/register", (req,res)=>{
-    res.render("registerForm", {})
+    res.render("registerForm",{})
 })
 
-router.get('/api/session/forgotPassword', (req,res)=>{
-    res.render('forgotPassword',{})
+router.get("/api/session/forgotPassword", (req,res)=>{
+    res.render("forgotPassword",{})
 })
 
-router.get('/api/session/resetPassword', viewsController.resetPasswordpage)
+router.get("/api/session/resetPassword", viewsController.resetPasswordpage)
 
 module.exports = router

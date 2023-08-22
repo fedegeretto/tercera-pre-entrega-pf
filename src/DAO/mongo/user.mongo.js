@@ -30,6 +30,13 @@ class UserManagerMongo{
         }
     }
 
+    async updateUser(uid, updateData){
+        try {
+            return await this.userModel.updateOne({ _id: uid }, { $set: updateData })
+        } catch (error) {
+            logger.error(error)
+        }
+    }
 }
 
 module.exports= UserManagerMongo

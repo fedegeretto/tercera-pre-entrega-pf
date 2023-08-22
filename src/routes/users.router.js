@@ -2,6 +2,7 @@ const {Router} = require("express")
 const passport = require("passport")
 const { passportCall } = require("../config/passportCall.js")
 const userController = require("../controllers/user.controller.js")
+const { uploader } = require('../utils/multer.js')
 const router= Router()
 
 
@@ -16,6 +17,8 @@ router.post("/forgotPassword", userController.forgotpassword)
 router.post("/resetPassword", userController.resetPassword)
 
 router.get("/premium/:uid", userController.changeRole)
+
+router.post("/:uid/documents", uploader.array("uploads"), userController.uploadDocuments)
 
 
 router.get("/github", passport.authenticate("github", {scope:["user:email"]}))
